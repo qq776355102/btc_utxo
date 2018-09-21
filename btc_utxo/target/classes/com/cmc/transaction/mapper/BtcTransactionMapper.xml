@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmc.transaction.mapper.BtcTransactionMapper">
+  <resultMap id="BaseResultMap" type="com.cmc.transaction.model.po.BtcTransaction">
+    <result column="ID" jdbcType="DECIMAL" property="id" />
+    <result column="TXID" jdbcType="VARCHAR" property="txid" />
+    <result column="HASH" jdbcType="VARCHAR" property="hash" />
+    <result column="FROMADD" jdbcType="VARCHAR" property="fromadd" />
+    <result column="TOADD" jdbcType="VARCHAR" property="toadd" />
+    <result column="VALUE" jdbcType="DECIMAL" property="value" />
+    <result column="MINERFEE" jdbcType="DECIMAL" property="minerfee" />
+    <result column="BLOCKNUMBER" jdbcType="DECIMAL" property="blocknumber" />
+    <result column="BLOCKHASH" jdbcType="VARCHAR" property="blockhash" />
+    <result column="TIME" jdbcType="VARCHAR" property="time" />
+  </resultMap>
+  
+  <select id="selectByAddress" parameterType="java.util.Map" resultMap="BaseResultMap">
+  		select * from BTC_TRANSACTION where FROMADD = #{address,jdbcType=VARCHAR}
+  		UNION
+  		select * from BTC_TRANSACTION where TOADD = #{address,jdbcType=VARCHAR}
+  </select>
+  <insert id="insert" parameterType="com.cmc.transaction.model.po.BtcTransaction">
+    insert into BTC_TRANSACTION (ID, TXID, HASH, 
+      FROMADD, TOADD, VALUE, 
+      MINERFEE, BLOCKNUMBER, BLOCKHASH, 
+      TIME)
+    values (#{id,jdbcType=DECIMAL}, #{txid,jdbcType=VARCHAR}, #{hash,jdbcType=VARCHAR}, 
+      #{fromadd,jdbcType=VARCHAR}, #{toadd,jdbcType=VARCHAR}, #{value,jdbcType=DECIMAL}, 
+      #{minerfee,jdbcType=DECIMAL}, #{blocknumber,jdbcType=DECIMAL}, #{blockhash,jdbcType=VARCHAR}, 
+      #{time,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.cmc.transaction.model.po.BtcTransaction">
+    insert into BTC_TRANSACTION
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="txid != null">
+        TXID,
+      </if>
+      <if test="hash != null">
+        HASH,
+      </if>
+      <if test="fromadd != null">
+        FROMADD,
+      </if>
+      <if test="toadd != null">
+        TOADD,
+      </if>
+      <if test="value != null">
+        VALUE,
+      </if>
+      <if test="minerfee != null">
+        MINERFEE,
+      </if>
+      <if test="blocknumber != null">
+        BLOCKNUMBER,
+      </if>
+      <if test="blockhash != null">
+        BLOCKHASH,
+      </if>
+      <if test="time != null">
+        TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=DECIMAL},
+      </if>
+      <if test="txid != null">
+        #{txid,jdbcType=VARCHAR},
+      </if>
+      <if test="hash != null">
+        #{hash,jdbcType=VARCHAR},
+      </if>
+      <if test="fromadd != null">
+        #{fromadd,jdbcType=VARCHAR},
+      </if>
+      <if test="toadd != null">
+        #{toadd,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null">
+        #{value,jdbcType=DECIMAL},
+      </if>
+      <if test="minerfee != null">
+        #{minerfee,jdbcType=DECIMAL},
+      </if>
+      <if test="blocknumber != null">
+        #{blocknumber,jdbcType=DECIMAL},
+      </if>
+      <if test="blockhash != null">
+        #{blockhash,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null">
+        #{time,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>

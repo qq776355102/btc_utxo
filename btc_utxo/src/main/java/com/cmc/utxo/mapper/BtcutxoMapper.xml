@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cmc.utxo.mapper.BtcutxoMapper" >
+  <resultMap id="BaseResultMap" type="com.cmc.utxo.model.po.Btcutxo" >
+    <result column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="TXID" property="txid" jdbcType="VARCHAR" />
+    <result column="HASH" property="hash" jdbcType="VARCHAR" />
+    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+    <result column="VALUE" property="value" jdbcType="DECIMAL" />
+    <result column="OUTINDEX" property="outindex" jdbcType="DECIMAL" />
+    <result column="ISUSED" property="isused" jdbcType="DECIMAL" />
+  </resultMap>
+  
+  <select id="selectByAddress" parameterType="java.util.Map" resultMap="BaseResultMap">
+  		select * from BTC_UTXO where ADDRESS = #{address,jdbcType=VARCHAR} and ISUSED = #{isused}
+  </select>
+  
+  <select id="getSpendingBanlance" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	select * from BTC_UTXO where ADDRESS = #{address,jdbcType=VARCHAR} and ISUSED in 
+  	<foreach collection="isused" open="(" close=")" item="noused" separator="," >
+  		#{noused}
+  	</foreach>
+  </select>
+  
+   <select id="selectByTxidAndVout" parameterType="java.util.Map" resultMap="BaseResultMap">
+  		select * from BTC_UTXO where TXID = #{txid,jdbcType=VARCHAR} and OUTINDEX = #{vout}
+  </select>
+  <update id="updateUtxoStatus" parameterType="java.util.Map">
+  		update BTC_UTXO set ISUSED = #{isused} where TXID = #{txid} and OUTINDEX = #{outindex}
+  </update>
+  
+  
+  <insert id="insert" parameterType="com.cmc.utxo.model.po.Btcutxo" >
+    insert into BTC_UTXO (ID, TXID, HASH, 
+      ADDRESS, VALUE, OUTINDEX, 
+      ISUSED)
+    values (#{id,jdbcType=DECIMAL}, #{txid,jdbcType=VARCHAR}, #{hash,jdbcType=VARCHAR}, 
+      #{address,jdbcType=VARCHAR}, #{value,jdbcType=DECIMAL}, #{outindex,jdbcType=DECIMAL}, 
+      #{isused,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.cmc.utxo.model.po.Btcutxo" >
+    insert into BTC_UTXO
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="txid != null" >
+        TXID,
+      </if>
+      <if test="hash != null" >
+        HASH,
+      </if>
+      <if test="address != null" >
+        ADDRESS,
+      </if>
+      <if test="value != null" >
+        VALUE,
+      </if>
+      <if test="outindex != null" >
+        OUTINDEX,
+      </if>
+      <if test="isused != null" >
+        ISUSED,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=DECIMAL},
+      </if>
+      <if test="txid != null" >
+        #{txid,jdbcType=VARCHAR},
+      </if>
+      <if test="hash != null" >
+        #{hash,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null" >
+        #{value,jdbcType=DECIMAL},
+      </if>
+      <if test="outindex != null" >
+        #{outindex,jdbcType=DECIMAL},
+      </if>
+      <if test="isused != null" >
+        #{isused,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+</mapper>

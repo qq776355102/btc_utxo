@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+
+	<!-- 扫描web相关的bean -->
+	<context:component-scan base-package="com.cmc" />
+
+
+	
+	<!-- 开启SpringMVC注解模式 -->
+	<!-- 配置json数据 -->
+	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">
+			<bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+				<!-- 处理responseBody 里面中文乱码 -->
+				<property name="supportedMediaTypes" value="text/html;charset=UTF-8"/>
+				<property name="features">
+					<array>
+						<!-- 输出值为null的字段 -->
+						<value>WriteMapNullValue</value>
+						<!-- 字符类型字段如果为null,输出为”“-->
+						<value>WriteNullStringAsEmpty</value>
+						<!-- 全局修改日期格式,默认为"yyyy-MM-dd HH:mm:ss" -->
+						<value>WriteDateUseDateFormat</value>
+						<!-- List字段如果为null,输出为[] -->
+						<value>WriteNullListAsEmpty</value>
+						<!-- 数值字段如果为null,输出为0 -->
+						<value>WriteNullNumberAsZero</value>
+						<!-- Boolean字段如果为null,输出为false -->
+						<value>WriteNullBooleanAsFalse</value>
+						<!-- 按字段名称排序后输出 -->
+						<value>SortField </value>
+						
+					</array>
+				</property>
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+	
+	<!-- 配置静态资源映射 -->
+	<mvc:resources mapping="/static/**" location="/static/" />
+
+	<!-- 静态资源默认servlet配置 -->
+	<!-- <mvc:default-servlet-handler /> -->
+
+	<!-- 前缀+ viewName +后缀 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<!-- webroot到某一指定的文件夹的路径 -->
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+		<!-- 视图名称的后缀 -->
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+
+
+	<!-- 支持上传文件 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="209715200" />
+		<property name="maxInMemorySize" value="209715200" />
+	</bean>
+
+
+	
+	<aop:aspectj-autoproxy  expose-proxy="true" />
+	
+	
+	<!-- 拦截器 -->
+<!-- 	<mvc:interceptors>
+		多个拦截器，顺序执行
+		<mvc:interceptor>
+			拦截的连接, "/**"拦截所有
+			<mvc:mapping path="/**"/>
+			<mvc:mapping path="/manage/**" />
+			不拦截的连接
+			<mvc:exclude-mapping path="/**/fonts/*" />
+			<bean class="com.cmc.util.LoginInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors> -->
+
+</beans>  

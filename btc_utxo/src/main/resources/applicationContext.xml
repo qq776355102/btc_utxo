@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/mvc     
+	http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+	http://www.springframework.org/schema/jdbc 
+	http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+	http://www.springframework.org/schema/jee 
+	http://www.springframework.org/schema/jee/spring-jee-4.0.xsd 
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+	http://cxf.apache.org/jaxws 
+	http://cxf.apache.org/schemas/jaxws.xsd
+	http://www.springframework.org/schema/util 
+	http://www.springframework.org/schema/util/spring-util-4.0.xsd
+	http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+	http://www.springframework.org/schema/cache/spring-cache.xsd
+	">
+
+	<!--缓存配置 -->
+	<!-- <cache:annotation-driven />
+	<bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+		<property name="caches">
+			<set>
+				<bean
+					class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+					p:name="default" />
+
+				<bean
+					class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+					p:name="noticeCache" />
+			</set>
+		</property>
+	</bean> -->
+
+	<context:annotation-config />
+
+	<!-- <context:component-scan base-package="com.yunlian,cn.yunlian"> <context:exclude-filter 
+		expression="org.springframework.stereotype.Controller" type="annotation" 
+		/> <context:exclude-filter expression="org.springframework.web.bind.annotation.ControllerAdvice" 
+		type="annotation" /> <context:exclude-filter expression="org.springframework.web.bind.annotation.RestController" 
+		type="annotation" /> </context:component-scan> -->
+
+	<context:component-scan base-package="com.cmc"></context:component-scan>
+
+	<!-- proxy-target-class="true"使用cglib代理;无法通知Final方法，因为他们不能被覆写;另外还需要将CGLIB二进制包放入classpath下面 -->
+	<aop:aspectj-autoproxy expose-proxy="true" />
+
+	<context:property-placeholder location="classpath:jdbc.properties" />
+
+
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		  init-method="init" destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+		<property name="url" value="${orcl_url}" />
+		<property name="username" value="${orcl_username}" />
+		<property name="password" value="${orcl_password}" />
+		<!-- 初始化连接大小 -->
+		<property name="initialSize" value="5"></property>
+		<!-- 连接池最大数量 -->
+		<property name="maxActive" value="10"></property>
+		<!-- 连接池最大空闲 -->
+		<property name="maxIdle" value="6"></property>
+		<!-- 连接池最小空闲 -->
+		<property name="minIdle" value="1"></property>
+		<!-- 获取连接最大等待时间 -->
+		<property name="maxWait" value="60000"></property>
+        <!-- 配置监控统计拦截的filters，去掉后监控界面sql无法统计 -->
+        <property name="filters" value="stat" />
+	</bean>
+<!-- 	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/test?useUnicode=true&amp;characterEncoding=utf8&amp;allowMultiQueries=true&amp;useAffectedRows=true" />
+		<property name="username" value="root" />
+		<property name="password" value="123456" />
+	</bean> -->
+
+
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:/mybatis-config.xml" />
+	</bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.cmc.**.mapper" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+
+	<!--单数据源事物管理 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
+		<property name="dataSource" ref="dataSource" /> </bean>
+	<!-- 使用annotation定义事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager"
+		order="1" />
+<!-- 	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean> -->
+
+	<!-- <bean id="jedisPoolProxy" class="cn.cmc.cache.JedisPoolProxy" init-method="initialPool"/> 
+		<bean id="redisObjectCache" class="cn.cmc.cache.impl.RedisObjectCacheImpl" 
+		/> -->
+
+
+	<task:annotation-driven executor="exceptionHandlingTaskExecutor"
+		scheduler="defaultTaskScheduler" />
+	<bean id="exceptionHandlingTaskExecutor" class="com.cmc.core.ExceptionHandlingAsyncTaskExecutor">
+		<constructor-arg ref="defaultTaskExecutor" />
+	</bean>
+	<task:executor id="defaultTaskExecutor" pool-size="5" />
+	<task:scheduler id="defaultTaskScheduler" pool-size="1" />
+
+
+	<bean id="sysConfig" class="com.cmc.core.SysProperties">
+		<property name="locations">
+			<list>
+				<value>classpath*:/sys.properties</value>
+			</list>
+		</property>
+	</bean>
+
+
+ 
+    <!--Start druid开启spring的监控 需要引入aspectjweaver包-->
+    <!--p:filters="stat,wall,log4j"   stat和wall。一个是用于监控，一个是用于防火墙。如果想使用sql防火墙，必须加上wall-->
+    <!--druid spring monitor setting-->
+    <bean id="druid-stat-interceptor" class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor" />
+    <bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut" scope="prototype">
+        <property name="patterns">
+            <list>
+                <!-- 配置监听的bean路径 支持方法名的拦截 -->
+                <value>com.cmc.controller.treatService.btc.*</value>
+                 <value>com.cmc.controller.simple.*</value>
+                <value>com.cmc.controller..*..*.*(..)</value>
+                <value>com.cmc.utxo.*.*</value>
+            </list>
+        </property>
+    </bean>
+    <!-- 基于AspectJ的自动代理.使用AnnotationAwareAspectJAutoProxyCreator  -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <aop:config>
+        <aop:advisor advice-ref="druid-stat-interceptor"
+                     pointcut-ref="druid-stat-pointcut" />
+        <!-- pointcut-ref="druid-stat-pointcut"在idea中报Cannot resolve Spring Pointcut 'druid-stat-pointcut'  不用管它 -->
+    </aop:config>
+    <!--End druid开启spring的监控 -->
+
+
+    <!--Start 慢SQL记录  数据源配置p:proxyFilters="stat-filter,log-filter"-->
+    <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <!-- 慢sql时间设置,即执行时间大于1秒的都是慢sql -->
+        <property name="slowSqlMillis" value="1000"/>
+        <property name="logSlowSql" value="true"/>
+    </bean>
+    <bean id="log-filter" class="com.alibaba.druid.filter.logging.Log4jFilter">
+        <property name="dataSourceLogEnabled" value="true" />
+        <property name="statementExecutableSqlLogEnable" value="true" />
+    </bean>
+    <!--end 慢SQL记录 -->
+
+
+
+</beans>

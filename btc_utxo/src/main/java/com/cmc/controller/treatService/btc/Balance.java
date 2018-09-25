@@ -19,7 +19,7 @@ public class Balance extends BusinessService {
 
 	/**
 	 * 访问url:
-	 * http://localhost:8080/ssm-oracle/cmc/a/i?v=2100&a=01010101&projId=1&t
+	 * http://localhost:8080/cmc/a/i?v=5400&a=01010201&t
 	 * =abc
 	 * 
 	 * 参数demo:
